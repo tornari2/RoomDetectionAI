@@ -1,0 +1,189 @@
+{
+  "tags": {
+    "master": {
+      "metadata": {
+        "name": "master",
+        "description": "Main task list for Room Detection AI project",
+        "created": "2024-11-08T00:00:00.000Z"
+      },
+      "tasks": [
+        {
+          "id": 1,
+          "title": "Set up AWS Infrastructure",
+          "description": "Set up AWS account and configure services. Create S3 bucket for blueprint storage, configure API Gateway, set up Lambda function skeleton, configure CloudWatch logging.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [],
+          "details": "**Files to Create:**\n- aws/infrastructure/cloudformation.yaml (or terraform/main.tf)\n- aws/config/s3-config.json\n- aws/config/lambda-config.json\n- README.md (AWS setup section)\n\n**Files to Modify:**\n- .gitignore (add AWS credentials patterns)\n\n**Key Requirements:**\n- S3 bucket for blueprint storage\n- API Gateway REST API setup\n- Lambda function skeleton\n- CloudWatch logging configuration",
+          "testStrategy": "Verify AWS resources are created and accessible via AWS CLI or console"
+        },
+        {
+          "id": 2,
+          "title": "Convert COCO Annotations to YOLO Format",
+          "description": "Convert COCO format annotations to YOLO format for training. Use existing coco_to_yolo.py script to convert train_coco_pt.json, val_coco_pt.json, and test_coco_pt.json. Generate YOLO label files and verify image paths match COCO annotation file paths.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [],
+          "details": "**Files to Create:**\n- scripts/convert_all_coco_to_yolo.sh\n- data/yolo_labels/train/ (directory with .txt files)\n- data/yolo_labels/val/ (directory with .txt files)\n- data/yolo_labels/test/ (directory with .txt files)\n- data/image_paths_mapping.json\n\n**Files to Modify:**\n- coco_to_yolo.py (if needed for batch processing)\n\n**Key Requirements:**\n- Convert all three COCO JSON files (train, val, test)\n- Generate YOLO format label files (.txt)\n- Verify image path mappings\n- Ensure coordinate transformations are correct",
+          "testStrategy": "Validate sample YOLO label files match COCO annotations, verify file counts match image counts"
+        },
+        {
+          "id": 3,
+          "title": "Validate Annotation Quality",
+          "description": "Validate annotation quality by visual spot-checking sample images. Create visualization script to verify bounding boxes are accurate.",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": [2],
+          "details": "**Files to Create:**\n- scripts/validate_annotations.py\n- data/validation_samples/ (directory with sample visualizations)\n\n**Files to Modify:**\n- visualize_coco_samples.py (if needed)\n\n**Key Requirements:**\n- Visual inspection of random samples\n- Verify bounding box accuracy\n- Document any issues found",
+          "testStrategy": "Review visualizations and confirm bounding boxes align with room boundaries"
+        },
+        {
+          "id": 4,
+          "title": "Set up SageMaker Environment",
+          "description": "Set up SageMaker environment and create custom container for YOLOv8. Configure SageMaker training job, upload training data to S3.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [2],
+          "details": "**Files to Create:**\n- sagemaker/Dockerfile\n- sagemaker/train.py\n- sagemaker/requirements.txt\n- sagemaker/config/training-config.yaml\n- scripts/upload_training_data_to_s3.sh\n\n**Files to Modify:**\n- .gitignore (add SageMaker outputs)\n\n**Key Requirements:**\n- Custom Docker container with YOLOv8\n- Training configuration\n- S3 upload script for training data",
+          "testStrategy": "Verify container builds successfully and training data uploads to S3"
+        },
+        {
+          "id": 5,
+          "title": "Train YOLOv8 Model",
+          "description": "Train YOLOv8 model on blueprint dataset using SageMaker. Configure hyperparameters, run training job, evaluate model performance on validation set.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [4],
+          "details": "**Files to Create:**\n- sagemaker/notebooks/training.ipynb (or sagemaker/scripts/run_training.sh)\n- sagemaker/outputs/training_metrics.json\n- sagemaker/outputs/model_artifacts/ (directory)\n\n**Files to Modify:**\n- sagemaker/train.py (hyperparameter tuning)\n\n**Key Requirements:**\n- Train on 4,200 training images\n- Validate on validation set\n- Track training metrics\n- Save model artifacts",
+          "testStrategy": "Verify model training completes, check validation metrics (mAP, precision, recall)"
+        },
+        {
+          "id": 6,
+          "title": "Deploy Model to SageMaker Serverless Inference",
+          "description": "Deploy trained YOLOv8 model to SageMaker Serverless Inference endpoint. Configure endpoint settings, test inference.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [5],
+          "details": "**Files to Create:**\n- sagemaker/deploy.py (or sagemaker/scripts/deploy_model.sh)\n- sagemaker/config/endpoint-config.yaml\n- sagemaker/tests/test_inference.py\n\n**Files to Modify:**\n- sagemaker/config/training-config.yaml (if needed)\n\n**Key Requirements:**\n- Deploy to Serverless Inference endpoint\n- Test inference with sample images\n- Verify response format matches API spec",
+          "testStrategy": "Test inference endpoint with sample blueprint, verify response format and processing time <30 seconds"
+        },
+        {
+          "id": 7,
+          "title": "Implement Lambda Function for Image Processing",
+          "description": "Implement Lambda function for image preprocessing and SageMaker endpoint invocation. Handle image resizing, normalization, coordinate transformation from pixel space to normalized 0-1000 range.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [6],
+          "details": "**Files to Create:**\n- lambda/handler.py\n- lambda/utils/image_processor.py\n- lambda/utils/coordinate_transformer.py\n- lambda/requirements.txt\n- lambda/tests/test_handler.py\n\n**Files to Modify:**\n- aws/config/lambda-config.json\n\n**Key Requirements:**\n- Image preprocessing (resize to 640x640, normalize)\n- Invoke SageMaker endpoint\n- Transform coordinates from pixels to 0-1000 range\n- Error handling",
+          "testStrategy": "Test Lambda with sample images, verify coordinate transformations are correct"
+        },
+        {
+          "id": 8,
+          "title": "Set up API Gateway Integration",
+          "description": "Set up API Gateway REST API with async processing support. Implement upload endpoint, status polling endpoint, error handling.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [7],
+          "details": "**Files to Create:**\n- api/openapi.yaml (or api/swagger.yaml)\n- api/handlers/upload_handler.py\n- api/handlers/status_handler.py\n- api/middleware/error_handler.py\n- api/tests/test_api.py\n\n**Files to Modify:**\n- aws/infrastructure/cloudformation.yaml (API Gateway resources)\n\n**Key Requirements:**\n- POST /api/v1/blueprints/upload endpoint\n- GET /api/v1/blueprints/{id}/status endpoint\n- Async processing support\n- Error responses",
+          "testStrategy": "Test API endpoints with curl/Postman, verify async processing workflow"
+        },
+        {
+          "id": 9,
+          "title": "Implement Async Processing & Status Tracking",
+          "description": "Implement async processing workflow with status tracking. Set up DynamoDB or in-memory storage for status, implement polling logic.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [8],
+          "details": "**Files to Create:**\n- lambda/utils/status_manager.py\n- lambda/utils/async_processor.py\n- api/handlers/polling_handler.py\n\n**Files to Modify:**\n- lambda/handler.py (add status tracking)\n- api/openapi.yaml (add status endpoints)\n\n**Key Requirements:**\n- Status storage (DynamoDB or in-memory)\n- Status updates (processing → completed/failed)\n- Polling endpoint implementation",
+          "testStrategy": "Test status tracking through full workflow, verify polling returns correct status"
+        },
+        {
+          "id": 10,
+          "title": "Set up React Frontend Project",
+          "description": "Initialize React project with TypeScript, set up build configuration, install dependencies. Configure routing (single page), set up state management.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [],
+          "details": "**Files to Create:**\n- frontend/package.json\n- frontend/tsconfig.json\n- frontend/vite.config.ts (or frontend/webpack.config.js)\n- frontend/src/index.tsx\n- frontend/src/App.tsx\n- frontend/.gitignore\n\n**Files to Modify:**\n- .gitignore (add frontend build outputs)\n\n**Key Requirements:**\n- React with TypeScript\n- Build tool (Vite recommended)\n- Single-page application structure",
+          "testStrategy": "Verify project builds and runs locally"
+        },
+        {
+          "id": 11,
+          "title": "Implement File Upload Component",
+          "description": "Implement drag & drop file upload component with file validation (PNG/JPG, max 50MB). Add file preview, process button, error handling.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [10],
+          "details": "**Files to Create:**\n- frontend/src/components/FileUpload.tsx\n- frontend/src/components/FileUpload.module.css (or FileUpload.css)\n- frontend/src/utils/fileValidation.ts\n- frontend/src/types/file.ts\n\n**Files to Modify:**\n- frontend/src/App.tsx (integrate upload component)\n\n**Key Requirements:**\n- Drag & drop support\n- File browser alternative\n- PNG/JPG validation\n- 50MB size limit\n- File preview display",
+          "testStrategy": "Test file upload with valid/invalid files, verify validation works"
+        },
+        {
+          "id": 12,
+          "title": "Implement Blueprint Display Component",
+          "description": "Implement blueprint image display with HTML5 Canvas overlay for bounding boxes. Handle image loading, canvas rendering, coordinate transformation from API (0-1000 range to pixels).",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [11],
+          "details": "**Files to Create:**\n- frontend/src/components/BlueprintDisplay.tsx\n- frontend/src/components/BlueprintDisplay.module.css\n- frontend/src/utils/canvasRenderer.ts\n- frontend/src/utils/coordinateTransformer.ts\n- frontend/src/types/blueprint.ts\n\n**Files to Modify:**\n- frontend/src/App.tsx (integrate display component)\n\n**Key Requirements:**\n- Image display with aspect ratio preservation\n- Canvas overlay synchronized with image\n- Bounding box rendering with distinct colors\n- Coordinate transformation (0-1000 → pixels)\n- React front-end renders automatically-created room boundaries",
+          "testStrategy": "Test with sample API response, verify bounding boxes render correctly on image"
+        },
+        {
+          "id": 13,
+          "title": "Implement Status & Loading Components",
+          "description": "Implement loading indicators and status messages during processing. Add polling logic for async status updates, error state handling.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [12],
+          "details": "**Files to Create:**\n- frontend/src/components/LoadingIndicator.tsx\n- frontend/src/components/StatusMessage.tsx\n- frontend/src/hooks/usePolling.ts\n- frontend/src/services/apiClient.ts\n- frontend/src/types/api.ts\n\n**Files to Modify:**\n- frontend/src/App.tsx (add status management)\n\n**Key Requirements:**\n- Loading spinner/indicator\n- Status messages (uploading, processing, complete)\n- Polling hook (every 2-3 seconds)\n- Error state handling\n- API client for HTTP requests",
+          "testStrategy": "Test polling logic, verify status updates display correctly"
+        },
+        {
+          "id": 14,
+          "title": "Implement Export Functionality",
+          "description": "Implement export buttons for annotated image (PNG with bounding boxes) and JSON coordinates. Create canvas export logic, file download functionality.",
+          "status": "pending",
+          "priority": "high",
+          "dependencies": [13],
+          "details": "**Files to Create:**\n- frontend/src/components/ExportButtons.tsx\n- frontend/src/utils/imageExporter.ts\n- frontend/src/utils/jsonExporter.ts\n- frontend/src/utils/canvasCompositor.ts\n\n**Files to Modify:**\n- frontend/src/components/BlueprintDisplay.tsx (add export handlers)\n\n**Key Requirements:**\n- Export annotated image (PNG with bounding boxes)\n- Export JSON coordinates\n- File download functionality\n- Proper file naming (timestamp-based)",
+          "testStrategy": "Test export buttons, verify downloaded files are correct format and contain expected data"
+        },
+        {
+          "id": 15,
+          "title": "Error Handling & UI Polish",
+          "description": "Implement error display component, add error recovery, polish UI styling and responsiveness. Add accessibility features (ARIA labels, keyboard navigation).",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": [14],
+          "details": "**Files to Create:**\n- frontend/src/components/ErrorDisplay.tsx\n- frontend/src/styles/global.css\n- frontend/src/styles/variables.css (color palette, typography)\n- frontend/src/utils/accessibility.ts\n\n**Files to Modify:**\n- All frontend components (add error handling, styling, accessibility)\n\n**Key Requirements:**\n- Error display component\n- Error recovery (retry functionality)\n- UI styling (color palette, typography, spacing)\n- Responsive design\n- Accessibility (ARIA labels, keyboard navigation)",
+          "testStrategy": "Test error scenarios, verify accessibility with screen reader, test responsive layout"
+        },
+        {
+          "id": 16,
+          "title": "End-to-End Testing",
+          "description": "Test complete workflow with multiple blueprint samples. Verify processing time <30 seconds, validate bounding box accuracy, test export functionality.",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": [15],
+          "details": "**Files to Create:**\n- tests/e2e/test_workflow.py (or tests/e2e/test_workflow.spec.ts)\n- tests/fixtures/sample_blueprints/ (test images)\n- tests/reports/test_results.json\n\n**Files to Modify:**\n- README.md (add testing instructions)\n\n**Key Requirements:**\n- Test full workflow (upload → process → view → export)\n- Verify processing time <30 seconds\n- Validate bounding box accuracy\n- Test with multiple blueprint samples",
+          "testStrategy": "Run end-to-end tests, verify all functionality works together, check performance metrics"
+        },
+        {
+          "id": 17,
+          "title": "Documentation & Demo Preparation",
+          "description": "Create comprehensive documentation, prepare demo materials. Write API documentation, setup guide, architecture diagram.",
+          "status": "pending",
+          "priority": "medium",
+          "dependencies": [16],
+          "details": "**Files to Create:**\n- docs/API.md\n- docs/SETUP.md\n- docs/ARCHITECTURE.md\n- docs/TRAINING.md\n- demo/demo_script.md\n- demo/sample_blueprints/ (demo images)\n\n**Files to Modify:**\n- README.md (comprehensive project overview)\n\n**Key Requirements:**\n- API documentation\n- Setup and deployment guide\n- Architecture diagram\n- Model training documentation\n- Demo script and materials",
+          "testStrategy": "Review documentation for completeness and accuracy"
+        }
+      ]
+    }
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2024-11-08T00:00:00.000Z",
+    "lastModified": "2024-11-08T00:00:00.000Z"
+  }
+}
+

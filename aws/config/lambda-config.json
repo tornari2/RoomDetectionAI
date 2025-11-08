@@ -1,0 +1,35 @@
+{
+  "functionName": "room-detection-ai-handler-dev",
+  "runtime": "python3.11",
+  "handler": "handler.lambda_handler",
+  "timeout": 300,
+  "memorySize": 1024,
+  "environment": {
+    "S3_BUCKET": "room-detection-ai-blueprints-dev",
+    "ENVIRONMENT": "dev",
+    "PROJECT_NAME": "room-detection-ai",
+    "LOG_LEVEL": "INFO"
+  },
+  "layers": [],
+  "vpcConfig": {
+    "subnetIds": [],
+    "securityGroupIds": []
+  },
+  "deadLetterQueue": {
+    "enabled": false
+  },
+  "reservedConcurrentExecutions": null,
+  "tags": {
+    "Project": "room-detection-ai",
+    "Environment": "dev",
+    "Purpose": "Room detection image processing"
+  },
+  "cloudWatchLogs": {
+    "retentionInDays": 14,
+    "logLevel": "INFO"
+  },
+  "xRayTracing": {
+    "enabled": false
+  }
+}
+

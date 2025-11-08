@@ -1,0 +1,44 @@
+{
+  "bucketName": "room-detection-ai-blueprints-dev",
+  "region": "us-east-2",
+  "versioning": {
+    "enabled": true,
+    "nonCurrentVersionExpirationDays": 30
+  },
+  "lifecycleRules": [
+    {
+      "id": "DeleteOldVersions",
+      "status": "Enabled",
+      "noncurrentVersionExpirationInDays": 30
+    },
+    {
+      "id": "DeleteIncompleteMultipartUploads",
+      "status": "Enabled",
+      "abortIncompleteMultipartUploadDays": 7
+    }
+  ],
+  "cors": {
+    "allowedOrigins": ["*"],
+    "allowedMethods": ["GET", "PUT", "POST", "HEAD"],
+    "allowedHeaders": ["*"],
+    "maxAge": 3000
+  },
+  "publicAccess": {
+    "blockPublicAcls": true,
+    "blockPublicPolicy": true,
+    "ignorePublicAcls": true,
+    "restrictPublicBuckets": true
+  },
+  "folders": {
+    "uploads": "uploads/",
+    "processed": "processed/",
+    "training": "training/",
+    "models": "models/"
+  },
+  "tags": {
+    "Project": "room-detection-ai",
+    "Environment": "dev",
+    "Purpose": "Blueprint storage for room detection AI"
+  }
+}
+

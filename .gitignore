@@ -1,0 +1,45 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dev-debug.log
+
+# Dependency directories
+node_modules/
+
+# Environment variables
+.env
+
+# MCP configuration (may contain API keys)
+.cursor/mcp.json
+**/mcp.json
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS specific
+.DS_Store
+
+# Task files
+# tasks.json
+# tasks/
+
+# AWS credentials and configuration
+.aws/
+*.pem
+*.key
+aws-credentials.json
+aws-config.json
+*.env.local
+
+# CloudFormation outputs
+aws/infrastructure/*.outputs.json
+aws/infrastructure/.aws-sam/ 
