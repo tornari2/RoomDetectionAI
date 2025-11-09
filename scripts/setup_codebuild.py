@@ -29,7 +29,7 @@ def create_codebuild_project(codebuild_client, project_name, region='us-east-2')
         'environment': {
             'type': 'LINUX_CONTAINER',
             'image': 'aws/codebuild/standard:7.0',  # Latest CodeBuild image with Docker
-            'computeType': 'BUILD_GENERAL1_SMALL',
+            'computeType': 'BUILD_GENERAL1_MEDIUM',  # Upgraded for faster builds (was SMALL)
             'privilegedMode': True,  # Required for Docker
             'environmentVariables': [
                 {

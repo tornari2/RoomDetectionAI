@@ -24,8 +24,8 @@ model:
   # This should point to the model.tar.gz from training job
   model_artifact_path: "s3://room-detection-ai-blueprints-dev/training/outputs/yolov8-room-detection-20251108-224902/output/model.tar.gz"
   
-  # Container image URI (same as training)
-  image_uri: "971422717446.dkr.ecr.us-east-2.amazonaws.com/room-detection-yolov8:latest"
+  # Container image URI (CPU inference container - using cpu-v1 tag to avoid caching)
+  image_uri: "971422717446.dkr.ecr.us-east-2.amazonaws.com/room-detection-yolov8:cpu-v1"
   
   # Inference script (inference.py)
   inference_script: "inference.py"

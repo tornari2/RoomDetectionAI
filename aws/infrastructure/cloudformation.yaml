@@ -117,6 +117,25 @@ Resources:
                 Action:
                   - sagemaker:InvokeEndpoint
                 Resource: '*'
+        - PolicyName: DynamoDBAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:Query
+                Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${StatusTable}'
+        - PolicyName: LambdaInvokeAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${ProjectName}-*'
 
   # Lambda Function Skeleton
   RoomDetectionLambda:
@@ -177,7 +196,8 @@ Resources:
   ApiGatewayDeployment:
     Type: AWS::ApiGateway::Deployment
     DependsOn:
-      - ApiGatewayMethod
+      - ApiGatewayUploadMethod
+      - ApiGatewayStatusMethod
     Properties:
       RestApiId: !Ref ApiGatewayRestApi
       StageName: !Ref Environment
@@ -221,6 +241,88 @@ Resources:
       MethodResponses:
         - StatusCode: 200
 
+  # DynamoDB Table for Status Tracking
+  StatusTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-status-${Environment}'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: blueprint_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: blueprint_id
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+        - Key: Environment
+          Value: !Ref Environment
+
+  # API Gateway upload Resource
+  ApiGatewayUploadResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ParentId: !Ref ApiGatewayBlueprintsResource
+      PathPart: upload
+
+  # API Gateway upload Method
+  ApiGatewayUploadMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ResourceId: !Ref ApiGatewayUploadResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RoomDetectionLambda.Arn}/invocations'
+      MethodResponses:
+        - StatusCode: 200
+        - StatusCode: 400
+        - StatusCode: 413
+        - StatusCode: 500
+
+  # API Gateway status Resource (for {blueprint_id}/status)
+  ApiGatewayStatusResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ParentId: !Ref ApiGatewayBlueprintsResource
+      PathPart: '{blueprint_id}'
+
+  # API Gateway status Resource (nested)
+  ApiGatewayStatusNestedResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ParentId: !Ref ApiGatewayStatusResource
+      PathPart: status
+
+  # API Gateway status Method
+  ApiGatewayStatusMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ResourceId: !Ref ApiGatewayStatusNestedResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      RequestParameters:
+        method.request.path.blueprint_id: true
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RoomDetectionLambda.Arn}/invocations'
+      MethodResponses:
+        - StatusCode: 200
+        - StatusCode: 404
+        - StatusCode: 500
+
   # Lambda Permission for API Gateway
   LambdaApiGatewayPermission:
     Type: AWS::Lambda::Permission
@@ -254,4 +356,10 @@ Outputs:
     Value: !Ref RoomDetectionLambda
     Export:
       Name: !Sub '${ProjectName}-${Environment}-LambdaName'
+
+  StatusTableName:
+    Description: Name of the DynamoDB status table
+    Value: !Ref StatusTable
+    Export:
+      Name: !Sub '${ProjectName}-${Environment}-StatusTable'
 
