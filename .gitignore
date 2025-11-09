@@ -42,4 +42,15 @@ aws-config.json
 
 # CloudFormation outputs
 aws/infrastructure/*.outputs.json
-aws/infrastructure/.aws-sam/ 
+aws/infrastructure/.aws-sam/
+
+# SageMaker outputs and artifacts
+sagemaker/outputs/
+sagemaker/.sagemaker/
+sagemaker/models/
+*.pt
+*.pth
+*.onnx
+*.pb
+sagemaker/logs/
+sagemaker/checkpoints/ 

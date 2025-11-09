@@ -1,0 +1,148 @@
+# Advanced Training Configuration for Maximum Performance
+# Updated with comprehensive hyperparameter tuning options
+
+training:
+  # Instance configuration
+  instance_type: "ml.g4dn.xlarge"  # GPU instance with NVIDIA T4
+  instance_count: 1
+  
+  # Volume configuration
+  volume_size_gb: 100
+  
+  # ========================================================================
+  # ADVANCED HYPERPARAMETERS (Performance-Optimized)
+  # ========================================================================
+  hyperparameters:
+    # Basic training (Optimized for single-shot training)
+    epochs: 300                    # More epochs compensate for less augmentation
+    batch_size: 16                 # Stable batch size
+    img_size: 640                  # Standard size (good balance)
+    model_size: "yolov8s.pt"
+    
+    # Learning rate and optimization (Independent of augmentation)
+    lr0: 0.01                      # Initial learning rate (optimal for fine-tuning)
+    lrf: 0.01                      # Final LR = lr0 * lrf (0.0001)
+    cos_lr: true                   # Cosine annealing scheduler (smooth decay)
+    warmup_epochs: 3               # Warmup epochs (stable start)
+    warmup_momentum: 0.8
+    warmup_bias_lr: 0.1
+    optimizer: "SGD"               # SGD typically better than Adam for detection
+    momentum: 0.937                # SGD momentum
+    weight_decay: 0.0005           # L2 regularization (prevents overfitting)
+    
+    # Loss function weights (CRITICAL - Independent of augmentation!)
+    # These are optimized for room detection task, not affected by augmentation
+    box: 8.0                       # Higher box weight (accurate boxes critical for rooms)
+    cls: 0.3                       # Lower cls weight (single class, less important)
+    dfl: 2.0                       # Higher DFL weight (better box precision)
+    label_smoothing: 0.0           # No smoothing for single class
+    
+    # Data augmentation (CONSERVATIVE - Safe Only)
+    # Only safe augmentations for single-shot training
+    # See BLUEPRINT_AUGMENTATION_GUIDE.md for detailed explanations
+    hsv_h: 0.0                     # NO hue change (blueprints have specific colors)
+    hsv_s: 0.5                     # Moderate saturation (handles color variations)
+    hsv_v: 0.3                     # Moderate brightness (handles scan quality)
+    degrees: 0.0                   # NO rotation (preserves orientation - CRITICAL!)
+    translate: 0.05                # Small translation (handles alignment)
+    scale: 0.3                     # Moderate scale (handles different blueprint scales)
+    shear: 0.0                     # NO shear (preserves rectangular shapes - CRITICAL!)
+    perspective: 0.0               # NO perspective (preserves geometry - CRITICAL!)
+    flipud: 0.0                    # NO vertical flip (preserves orientation)
+    fliplr: 0.5                    # Horizontal flip (safe for floor plans - doubles data)
+    mosaic: 0.0                    # NO mosaic (risky for blueprints)
+    mixup: 0.0                     # NO mixup (risky for blueprints)
+    copy_paste: 0.0                # Not needed for detection
+    close_mosaic: 0                # Not applicable (mosaic disabled)
+    
+    # Training configuration (Optimized for single-shot training)
+    patience: 150                  # Higher patience (less augmentation = need more epochs)
+    save_period: -1                # Save only best model
+    workers: 8                     # Data loading workers
+    amp: true                      # Automatic Mixed Precision (faster training)
+    multi_scale: false             # Disabled for stability
+    single_cls: true               # Single class mode
+    seed: 42                       # Random seed (reproducibility)
+    pretrained: true               # Use pretrained weights (fine-tuning)
+    
+  # Training time limits
+  max_runtime_hours: 12            # Increased for longer training
+  max_wait_time_hours: 24
+
+# ========================================================================
+# HYPERPARAMETER TUNING VARIANTS
+# ========================================================================
+hyperparameter_variants:
+  # Variant 1: Aggressive (Maximum Performance)
+  aggressive:
+    epochs: 500
+    batch_size: 32
+    img_size: 800
+    box: 8.0
+    cls: 0.3
+    dfl: 2.0
+    mixup: 0.2
+    multi_scale: true
+  
+  # Variant 2: Balanced (Recommended)
+  balanced:
+    epochs: 300
+    batch_size: 16
+    img_size: 640
+    box: 7.5
+    cls: 0.5
+    dfl: 1.5
+    mixup: 0.15
+    multi_scale: false
+  
+  # Variant 3: Fast (Quick Iterations)
+  fast:
+    epochs: 100
+    batch_size: 32
+    img_size: 640
+    lr0: 0.02
+    optimizer: "AdamW"
+    mixup: 0.0
+
+# S3 configuration
+s3:
+  bucket: "room-detection-ai-blueprints-dev"
+  training_prefix: "training"  # Remove trailing slash to avoid double slashes
+  validation_prefix: "training/validation"  # Remove trailing slash
+  model_prefix: "models/"
+  output_prefix: "training/outputs/"
+
+# Container configuration
+container:
+  image_uri: ""
+  registry: "971422717446.dkr.ecr.us-east-2.amazonaws.com"
+  repository: "room-detection-yolov8"
+  tag: "latest"
+
+# Data configuration
+data:
+  train_images_count: 4194
+  val_images_count: 400
+  test_images_count: 398
+  num_classes: 1
+  class_names:
+    - "room"
+
+# Monitoring and logging
+monitoring:
+  enable_cloudwatch: true
+  log_level: "INFO"
+  metrics:
+    - "train/box_loss"
+    - "train/cls_loss"
+    - "train/dfl_loss"
+    - "metrics/precision(B)"
+    - "metrics/recall(B)"
+    - "metrics/mAP50(B)"
+    - "metrics/mAP50-95(B)"
+
+# Cost estimation
+cost_estimation:
+  instance_hourly_rate_usd: 0.736
+  estimated_training_hours: 6      # Increased for longer training
+  estimated_total_cost_usd: 4.42

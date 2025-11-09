@@ -25,11 +25,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy training script
 COPY train.py /opt/ml/code/train.py
 
+# Copy inference script
+COPY inference.py /opt/ml/code/inference.py
+
 # Set environment variables
 ENV PYTHONUNBUFFERED=TRUE
 ENV PYTHONDONTWRITEBYTECODE=TRUE
 ENV PATH="/opt/ml/code:${PATH}"
 
-# Make train.py executable (SageMaker will handle the entrypoint)
-RUN chmod +x /opt/ml/code/train.py
+# Make scripts executable (SageMaker will handle the entrypoint)
+RUN chmod +x /opt/ml/code/train.py /opt/ml/code/inference.py
 

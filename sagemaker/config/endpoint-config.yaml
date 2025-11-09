@@ -1,0 +1,60 @@
+# SageMaker Serverless Inference Endpoint Configuration
+
+endpoint:
+  # Endpoint name (will be created with timestamp if not specified)
+  name: "room-detection-yolov8-endpoint"
+  
+  # Serverless inference configuration
+  serverless_config:
+    # Memory size in MB (must be one of: 1024, 2048, 3072, 4096, 5120, 6144)
+    memory_size_mb: 2048
+    
+    # Maximum number of concurrent invocations
+    max_concurrency: 5
+    
+    # Provisioned concurrency (optional, for guaranteed capacity)
+    # provisioned_concurrency: 1
+
+# Model configuration
+model:
+  # Model name (will be created from training job)
+  name: "room-detection-yolov8-model"
+  
+  # S3 path to model artifacts
+  # This should point to the model.tar.gz from training job
+  model_artifact_path: "s3://room-detection-ai-blueprints-dev/training/outputs/yolov8-room-detection-20251108-224902/output/model.tar.gz"
+  
+  # Container image URI (same as training)
+  image_uri: "971422717446.dkr.ecr.us-east-2.amazonaws.com/room-detection-yolov8:latest"
+  
+  # Inference script (inference.py)
+  inference_script: "inference.py"
+
+# IAM role configuration
+iam:
+  # SageMaker execution role ARN (should have SageMaker, S3, CloudWatch permissions)
+  # Leave empty to use default role or set via environment variable
+  role_arn: "arn:aws:iam::971422717446:role/service-role/AmazonSageMaker-ExecutionRole-20250802T111914"
+
+# Region configuration
+region: "us-east-2"
+
+# Environment variables for the endpoint
+environment:
+  # Set any environment variables needed for inference
+  # PYTHONUNBUFFERED: "1"
+  # LOG_LEVEL: "INFO"
+
+# Monitoring and logging
+monitoring:
+  enable_cloudwatch: true
+  log_level: "INFO"
+
+# Cost estimation
+cost_estimation:
+  # Serverless inference pricing (per GB-second)
+  # Pricing varies by region, approximate: $0.00004 per GB-second
+  # Memory: 2048 MB = 2 GB
+  # Estimated cost per 1000 requests (assuming 2 seconds per request): ~$0.16
+  estimated_cost_per_1k_requests_usd: 0.16
+

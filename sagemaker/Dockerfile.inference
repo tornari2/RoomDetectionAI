@@ -1,0 +1,31 @@
+# SageMaker Dockerfile for YOLOv8 Inference (Optimized for size)
+# Using PyTorch inference image (smaller than training image)
+
+FROM 763104351884.dkr.ecr.us-east-1.amazonaws.com/pytorch-inference:2.0.1-cpu-py310-ubuntu20.04-sagemaker
+
+# Set working directory
+WORKDIR /opt/ml/code
+
+# Install system dependencies (minimal set)
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements file
+COPY requirements.txt /opt/ml/code/requirements.txt
+
+# Install Python dependencies (only what's needed for inference)
+RUN pip install --no-cache-dir ultralytics pillow
+
+# Copy inference script
+COPY inference.py /opt/ml/code/inference.py
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=TRUE
+ENV PYTHONDONTWRITEBYTECODE=TRUE
+ENV PATH="/opt/ml/code:${PATH}"
+
+# Make inference script executable
+RUN chmod +x /opt/ml/code/inference.py
+
