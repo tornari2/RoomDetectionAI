@@ -4,10 +4,12 @@ Status manager for tracking blueprint processing status in DynamoDB.
 
 import os
 import time
+import json
 import boto3
 from typing import Dict, Any, Optional
 from botocore.exceptions import ClientError
 from datetime import datetime, timedelta
+from decimal import Decimal
 
 # Initialize DynamoDB client
 dynamodb = boto3.resource('dynamodb')
@@ -106,8 +108,10 @@ class StatusManager:
                 expression_attribute_values[':processing_time_ms'] = processing_time_ms
             
             if detected_rooms is not None:
+                # Convert floats to Decimal for DynamoDB
+                detected_rooms_converted = json.loads(json.dumps(detected_rooms), parse_float=Decimal)
                 update_expression_parts.append("detected_rooms = :detected_rooms")
-                expression_attribute_values[':detected_rooms'] = detected_rooms
+                expression_attribute_values[':detected_rooms'] = detected_rooms_converted
             
             if error is not None:
                 update_expression_parts.append("#error = :error")
@@ -133,7 +137,7 @@ class StatusManager:
             blueprint_id: Unique blueprint identifier
             
         Returns:
-            Status dictionary or None if not found
+            Status dictionary or None if not found (all Decimals converted to floats)
         """
         try:
             response = self.table.get_item(
@@ -144,10 +148,33 @@ class StatusManager:
                 item = response['Item']
                 # Remove TTL from response (internal field)
                 item.pop('ttl', None)
+                
+                # Convert ALL Decimals to floats recursively
+                item = self._convert_decimals_to_floats(item)
+                
                 return item
             return None
         except ClientError as e:
             raise StatusManagerError(f"Failed to get status: {str(e)}")
+    
+    @staticmethod
+    def _decimal_default(obj):
+        """Helper to convert Decimal to float for JSON serialization."""
+        if isinstance(obj, Decimal):
+            return float(obj)
+        raise TypeError
+    
+    @staticmethod
+    def _convert_decimals_to_floats(obj):
+        """Recursively convert all Decimal objects to floats."""
+        if isinstance(obj, list):
+            return [StatusManager._convert_decimals_to_floats(item) for item in obj]
+        elif isinstance(obj, dict):
+            return {key: StatusManager._convert_decimals_to_floats(value) for key, value in obj.items()}
+        elif isinstance(obj, Decimal):
+            return float(obj)
+        else:
+            return obj
     
     def mark_completed(
         self,

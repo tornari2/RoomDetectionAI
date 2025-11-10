@@ -183,6 +183,11 @@ Resources:
     Properties:
       Name: !Sub '${ProjectName}-api-${Environment}'
       Description: Room Detection AI API
+      BinaryMediaTypes:
+        - 'multipart/form-data'
+        - 'image/png'
+        - 'image/jpeg'
+        - '*/*'
       EndpointConfiguration:
         Types:
           - REGIONAL
@@ -196,6 +201,7 @@ Resources:
   ApiGatewayDeployment:
     Type: AWS::ApiGateway::Deployment
     DependsOn:
+      - ApiGatewayUploadOptionsMethod
       - ApiGatewayUploadMethod
       - ApiGatewayStatusMethod
     Properties:
@@ -269,6 +275,25 @@ Resources:
       RestApiId: !Ref ApiGatewayRestApi
       ParentId: !Ref ApiGatewayBlueprintsResource
       PathPart: upload
+
+  # API Gateway upload Method (OPTIONS for CORS)
+  ApiGatewayUploadOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ResourceId: !Ref ApiGatewayUploadResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RoomDetectionLambda.Arn}/invocations'
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Headers: true
 
   # API Gateway upload Method
   ApiGatewayUploadMethod:

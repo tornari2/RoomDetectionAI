@@ -53,4 +53,32 @@ sagemaker/models/
 *.onnx
 *.pb
 sagemaker/logs/
-sagemaker/checkpoints/ 
+sagemaker/checkpoints/
+
+# Python virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Lambda deployment packages (should not be in git)
+lambda/_numpy_layer/
+lambda/_PIL_layer/
+lambda/_numpy.libs/
+lambda/_pillow.libs/
+lambda/numpy/
+lambda/PIL/
+lambda/numpy.libs/
+lambda/pillow.libs/
+lambda/numpy-*.dist-info/
+lambda/pillow-*.dist-info/
+lambda/bin/
+lambda_deployment.zip
+lambda/*.zip
+
+# Frontend build outputs
+frontend/dist/
+frontend/node_modules/
+frontend/.vite/
+frontend/build/
+frontend/*.local 

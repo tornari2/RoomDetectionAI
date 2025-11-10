@@ -1,0 +1,57 @@
+.container {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  justify-content: center;
+  align-items: center;
+}
+
+.exportButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.exportButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.exportButton:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+}
+
+.exportButton:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.6;
+}
+
+.exportButton svg {
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .container {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .exportButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
