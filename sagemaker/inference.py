@@ -30,10 +30,10 @@ def model_fn(model_dir):
     if not model_path.exists():
         raise FileNotFoundError(f"Model file not found: {model_path}")
     
-    # Load YOLOv8 model
-    model = YOLO(str(model_path))
+    # Load YOLOv8 model WITHOUT validation
+    # Use task='detect' to skip dataset validation
+    model = YOLO(str(model_path), task='detect')
     model.to('cpu')  # Serverless inference uses CPU
-    model.eval()
     
     print("Model loaded successfully")
     return model
@@ -78,6 +78,9 @@ def predict_fn(input_data, model):
     print("Running inference...")
     start_time = time.time()
     
+    # Get image dimensions BEFORE inference
+    img_width, img_height = input_data.size
+    
     # Run YOLOv8 inference
     results = model(input_data, conf=0.25, iou=0.45, imgsz=640)
     
@@ -92,9 +95,6 @@ def predict_fn(input_data, model):
             # Get box coordinates (normalized 0-1)
             xyxy = box.xyxy[0].cpu().numpy()
             confidence = float(box.conf[0].cpu().numpy())
-            
-            # Get image dimensions
-            img_width, img_height = input_data.size
             
             # Convert from pixel coordinates to normalized 0-1000 range
             # Format: [x_min, y_min, x_max, y_max]

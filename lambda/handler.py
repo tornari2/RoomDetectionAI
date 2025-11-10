@@ -357,36 +357,10 @@ def process_image(image_bytes: bytes, blueprint_id: str) -> Dict[str, Any]:
         preprocessed_image.save(img_byte_arr, format='PNG')
         preprocessed_bytes = img_byte_arr.getvalue()
         
-        # TEMPORARY: Use mock data instead of SageMaker (for testing)
-        # TODO: Re-enable SageMaker once endpoint is fixed
-        # sagemaker_response = invoke_sagemaker_endpoint(preprocessed_bytes)
-        # detected_rooms = sagemaker_response.get('detected_rooms', [])
-        # processing_time_ms = sagemaker_response.get('processing_time_ms', 0)
-        
-        # Mock room detections for testing (using regular floats)
-        detected_rooms = [
-            {
-                "id": "room_001",
-                "bounding_box": [150, 100, 450, 350],
-                "confidence": 0.92
-            },
-            {
-                "id": "room_002", 
-                "bounding_box": [500, 100, 800, 350],
-                "confidence": 0.88
-            },
-            {
-                "id": "room_003",
-                "bounding_box": [150, 400, 350, 650],
-                "confidence": 0.85
-            },
-            {
-                "id": "room_004",
-                "bounding_box": [400, 450, 600, 700],
-                "confidence": 0.91
-            }
-        ]
-        processing_time_ms = 150
+        # Invoke SageMaker endpoint for real inference
+        sagemaker_response = invoke_sagemaker_endpoint(preprocessed_bytes)
+        detected_rooms = sagemaker_response.get('detected_rooms', [])
+        processing_time_ms = sagemaker_response.get('processing_time_ms', 0)
         
         # Calculate total processing time
         total_time_ms = int((time.time() - start_time) * 1000)

@@ -7,10 +7,11 @@ import styles from './FileUpload.module.css'
 interface FileUploadProps {
   onFileSelect: (file: File) => void
   onProcess: (file: File) => void
+  onClear?: () => void
   isProcessing?: boolean
 }
 
-export default function FileUpload({ onFileSelect, onProcess, isProcessing = false }: FileUploadProps) {
+export default function FileUpload({ onFileSelect, onProcess, onClear, isProcessing = false }: FileUploadProps) {
   const [selectedFile, setSelectedFile] = useState<FileWithPreview | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
@@ -70,6 +71,15 @@ export default function FileUpload({ onFileSelect, onProcess, isProcessing = fal
     setSelectedFile(null)
     setPreview(null)
     setError(null)
+    // Notify parent component to clear everything
+    if (onClear) {
+      onClear()
+    }
+  }
+
+  const handleSelectNew = () => {
+    // Just trigger file input - don't clear until new file is selected
+    document.getElementById('file-input-new')?.click()
   }
 
   return (
@@ -143,6 +153,14 @@ export default function FileUpload({ onFileSelect, onProcess, isProcessing = fal
                 Clear
               </button>
               <button
+                onClick={handleSelectNew}
+                className={styles.selectNewButton}
+                disabled={isProcessing}
+                aria-label="Select a new blueprint"
+              >
+                Select New
+              </button>
+              <button
                 onClick={handleProcess}
                 className={styles.processButton}
                 disabled={isProcessing}
@@ -152,6 +170,14 @@ export default function FileUpload({ onFileSelect, onProcess, isProcessing = fal
                 {isProcessing ? 'Processing...' : 'Process Blueprint'}
               </button>
             </div>
+            {/* Hidden file input for "Select New" button */}
+            <input
+              id="file-input-new"
+              type="file"
+              accept="image/png,image/jpeg,image/jpg"
+              onChange={handleFileInputChange}
+              style={{ display: 'none' }}
+            />
           </div>
         )}
       </div>

@@ -28,6 +28,18 @@ function App() {
     }
   }, [lastFile])
 
+  const handleClear = useCallback(() => {
+    // Clear all state
+    setImageUrl(null)
+    setDetectedRooms([])
+    setStatus('idle')
+    setStatusMessage('')
+    setError(null)
+    setBlueprintId(null)
+    setIsProcessing(false)
+    setLastFile(null)
+  }, [])
+
   const handleFileSelect = (file: File) => {
     console.log('File selected:', file.name)
     // Create preview URL for the selected file
@@ -78,7 +90,8 @@ function App() {
         const completedResponse = statusResponse as StatusResponseCompleted
         setDetectedRooms(completedResponse.detected_rooms)
         setStatus('completed')
-        setStatusMessage(`Processing completed! Found ${completedResponse.detected_rooms.length} rooms in ${completedResponse.processing_time_ms}ms`)
+        const timeInSeconds = (completedResponse.processing_time_ms / 1000).toFixed(2)
+        setStatusMessage(`Processing completed! Found ${completedResponse.detected_rooms.length} rooms in ${timeInSeconds}s`)
         setIsProcessing(false)
       } else if (statusResponse.status === 'failed') {
         const failedResponse = statusResponse as StatusResponseFailed
@@ -129,6 +142,7 @@ function App() {
               <FileUpload
                 onFileSelect={handleFileSelect}
                 onProcess={handleProcess}
+                onClear={handleClear}
                 isProcessing={isProcessing}
               />
               {error && status === 'error' && (
