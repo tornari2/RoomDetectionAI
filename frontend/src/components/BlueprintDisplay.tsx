@@ -50,7 +50,7 @@ export default function BlueprintDisplay({
 
     try {
       setExportError(null)
-      exportJSON(detectedRooms, blueprintId, imageDimensions || undefined)
+      exportJSON(detectedRooms, blueprintId)
     } catch (error) {
       console.error('Export JSON failed:', error)
       setExportError('Failed to export JSON')
