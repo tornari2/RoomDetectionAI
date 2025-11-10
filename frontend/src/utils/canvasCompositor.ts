@@ -1,5 +1,5 @@
 import type { DetectedRoom } from '../types/blueprint'
-import { getRoomColor, drawBoundingBox } from './canvasRenderer'
+import { getConfidenceColor, drawBoundingBox } from './canvasRenderer'
 
 /**
  * Composite an image with bounding boxes drawn on a canvas
@@ -34,7 +34,8 @@ export function compositeImageWithBoxes(
       height: ((room.bounding_box[3] - room.bounding_box[1]) / 1000) * canvas.height,
     }
 
-    const color = getRoomColor(room.id)
+    // Use confidence-based colors (green/yellow/red) for export
+    const color = getConfidenceColor(room.confidence)
     drawBoundingBox(ctx, pixelBox, color)
   })
 
