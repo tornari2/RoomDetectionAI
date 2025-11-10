@@ -43,7 +43,7 @@ export function drawBoundingBox(
   box: BoundingBox,
   color: string,
   label?: string,
-  confidence?: number,
+  _confidence?: number,
   isHovered?: boolean
 ): void {
   const { x, y, width, height } = box
