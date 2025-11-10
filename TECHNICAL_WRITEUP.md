@@ -98,11 +98,13 @@ python coco_to_yolo.py \
 ```
 
 ### 3.3 Data Augmentation Strategy
-To improve model robustness, we applied:
-- **Geometric transforms**: Rotation (±15°), scaling (0.8-1.2x), translation (±10%)
-- **Color jittering**: Brightness, contrast, saturation adjustments
+To improve model robustness while preserving geometric accuracy, we applied conservative augmentations:
+- **Geometric transforms**: Translation (±5%), scaling (0.7-1.3×)
+- **Horizontal flip**: 50% probability (safe for floor plans, doubles training data)
+- **Color jittering**: Brightness (±30%), contrast, and saturation adjustments
 - **Noise injection**: Gaussian noise to simulate scan artifacts
-- **Mosaic augmentation**: 4-image composition for multi-scale learning
+
+**Disabled Augmentations**: Mosaic, mixup, rotation, shear, and perspective transforms were **explicitly disabled** as they risk distorting architectural geometry and room boundaries, which are critical for accurate detection.
 
 ### 3.4 Quality Assurance
 **Validation Metrics:**
@@ -203,7 +205,7 @@ def transform_coordinates(bbox, original_size, model_size=(640, 640)):
 
 ## 6. Performance Metrics
 
-### 6.1 Model Performance
+### 6.1 Model Performance (Validation Set)
 | Metric | Value |
 |--------|-------|
 | mAP@0.5 | 0.847 |
@@ -211,6 +213,8 @@ def transform_coordinates(bbox, original_size, model_size=(640, 640)):
 | Precision | 0.831 |
 | Recall | 0.798 |
 | F1 Score | 0.814 |
+
+**Note**: All metrics computed on the validation set (400 images) during training. The test set (398 images) is reserved for final evaluation.
 
 ### 6.2 Inference Performance
 - **Average latency**: 220ms (CPU)

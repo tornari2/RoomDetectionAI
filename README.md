@@ -137,10 +137,11 @@ IoU Threshold: 0.45
 - **Geometric**: Rotation (±15°), scaling (0.8-1.2×), translation (±10%)
 - **Color**: Brightness, contrast, and saturation adjustments
 - **Noise**: Gaussian noise for scan artifact simulation
-- **Mosaic**: 4-image composition for multi-scale learning
-- **Mixup**: Random blending of training samples
+- **Horizontal Flip**: 50% probability (doubles training data)
 
-### Performance Metrics
+**Note**: Mosaic and mixup augmentations were **disabled** for architectural blueprints to preserve geometric accuracy.
+
+### Performance Metrics (Validation Set)
 - **mAP@0.5**: 84.7%
 - **mAP@0.5:0.95**: 61.2%
 - **Precision**: 83.1%
