@@ -1,0 +1,110 @@
+.container {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  background: #fed7d7;
+  border: 2px solid #fc8181;
+  border-radius: 12px;
+  margin: 16px 0;
+  max-width: 600px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.iconWrapper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: #fff5f5;
+  border-radius: 50%;
+}
+
+.icon {
+  color: #c53030;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #742a2a;
+}
+
+.message {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #9b2c2c;
+  line-height: 1.5;
+}
+
+.retryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  margin-top: 8px;
+  background: #c53030;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: flex-start;
+}
+
+.retryButton:hover {
+  background: #9b2c2c;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(197, 48, 48, 0.3);
+}
+
+.retryButton:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.retryButton:focus {
+  outline: 2px solid #742a2a;
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .content {
+    align-items: center;
+  }
+
+  .retryButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+

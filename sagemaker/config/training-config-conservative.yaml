@@ -1,0 +1,61 @@
+# Conservative Blueprint-Safe Training Configuration
+# Minimal augmentation for maximum safety and stability
+
+training:
+  instance_type: "ml.g4dn.xlarge"
+  instance_count: 1
+  volume_size_gb: 100
+  
+  hyperparameters:
+    # Basic training
+    epochs: 300
+    batch_size: 16
+    img_size: 640
+    model_size: "yolov8s.pt"
+    
+    # Learning rate
+    lr0: 0.01
+    lrf: 0.01
+    cos_lr: true
+    warmup_epochs: 3
+    optimizer: "SGD"
+    momentum: 0.937
+    weight_decay: 0.0005
+    
+    # Loss weights
+    box: 8.0
+    cls: 0.3
+    dfl: 2.0
+    
+    # CONSERVATIVE Augmentation (Blueprint-Safe)
+    # Only safe augmentations - no risky geometric transforms
+    hsv_h: 0.0                     # No hue change (blueprints have specific colors)
+    hsv_s: 0.5                     # Moderate saturation
+    hsv_v: 0.3                     # Moderate brightness
+    degrees: 0.0                    # NO rotation
+    translate: 0.05                # Small translation
+    scale: 0.3                     # Moderate scale
+    shear: 0.0                     # NO shear
+    perspective: 0.0               # NO perspective
+    flipud: 0.0                    # NO vertical flip
+    fliplr: 0.5                    # Horizontal flip (safe)
+    mosaic: 0.0                    # NO mosaic (risky for blueprints)
+    mixup: 0.0                     # NO mixup (risky for blueprints)
+    close_mosaic: 0
+    
+    # Training config
+    patience: 100
+    save_period: -1
+    workers: 8
+    amp: true
+    multi_scale: false
+    single_cls: true
+    seed: 42
+    pretrained: true
+
+# Use this configuration when:
+# - You want maximum safety
+# - You're unsure about augmentation impact
+# - Your dataset is already diverse
+# - You want stable, predictable training
+

@@ -1,0 +1,108 @@
+{
+  "split": "val",
+  "total_samples": 20,
+  "success_count": 0,
+  "failed_count": 20,
+  "results": [
+    {
+      "sample_id": 298,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 396,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 283,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 232,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 279,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 289,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 161,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 343,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 106,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 208,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 1,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 372,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 210,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 214,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 162,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 281,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 72,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 89,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 95,
+      "status": "failed",
+      "reason": "Image not found"
+    },
+    {
+      "sample_id": 204,
+      "status": "failed",
+      "reason": "Image not found"
+    }
+  ]
+}

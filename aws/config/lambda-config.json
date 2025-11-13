@@ -1,0 +1,22 @@
+{
+  "function_name": "room-detection-processor",
+  "runtime": "python3.10",
+  "handler": "handler.lambda_handler",
+  "timeout": 300,
+  "memory_size": 1024,
+  "environment_variables": {
+    "SAGEMAKER_ENDPOINT_NAME": "room-detection-yolov8-endpoint",
+    "S3_BUCKET": "room-detection-ai-blueprints-dev"
+  },
+  "iam_role": "arn:aws:iam::971422717446:role/Lambda-room-detection-execution-role",
+  "layers": [
+    "arn:aws:lambda:us-east-2:971422717446:layer:room-detection-dependencies:1"
+  ],
+  "vpc_config": null,
+  "dead_letter_queue": null,
+  "reserved_concurrent_executions": null,
+  "tags": {
+    "Project": "RoomDetectionAI",
+    "Environment": "dev"
+  }
+}
