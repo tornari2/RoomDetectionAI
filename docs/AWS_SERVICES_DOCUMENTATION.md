@@ -101,7 +101,7 @@ WORKDIR /opt/ml
 **Hyperparameters**:
 ```json
 {
-  "epochs": 100,
+  "epochs": 300,
   "batch_size": 16,
   "img_size": 640,
   "model_size": "yolov8n.pt",

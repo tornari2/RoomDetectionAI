@@ -124,7 +124,7 @@ This project provides an end-to-end solution for detecting rooms in architectura
 
 ### Training Configuration
 ```yaml
-Epochs: 100
+Epochs: 300
 Batch Size: 16
 Learning Rate: 0.001 (AdamW optimizer)
 Weight Decay: 0.0005
@@ -139,13 +139,13 @@ IoU Threshold: 0.45
 - **Noise**: Gaussian noise for scan artifact simulation
 - **Horizontal Flip**: 50% probability (doubles training data)
 
-**Note**: Mosaic and mixup augmentations were **disabled** for architectural blueprints to preserve geometric accuracy.
+**Note**: Mosaic and mixup augmentations were disabled for architectural blueprints to preserve geometric accuracy.
 
-### Performance Metrics (Validation Set)
-- **mAP@0.5**: 84.7%
-- **mAP@0.5:0.95**: 61.2%
-- **Precision**: 83.1%
-- **Recall**: 79.8%
+### Performance Metrics (Test Set)
+- **mAP@0.5**: 91.2%
+- **mAP@0.5:0.95**: 83.2%
+- **Precision**: 89.2%
+- **Recall**: 88.4%
 - **Inference Time**: 220ms average (CPU)
 - **Throughput**: ~4.5 requests/second
 

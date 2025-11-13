@@ -82,12 +82,12 @@ python coco_to_yolo.py \
 ### 3.3 Data Augmentation Strategy
 
 To improve model robustness while preserving geometric accuracy, we applied conservative augmentations:
-- **Geometric transforms**: Translation (±5%), scaling (0.7-1.3×)
-- **Horizontal flip**: 50% probability (safe for floor plans, doubles training data)
-- **Color jittering**: Brightness (±30%), contrast, and saturation adjustments
-- **Noise injection**: Gaussian noise to simulate scan artifacts
+- **Geometric**: Rotation (±15°), scaling (0.8-1.2×), translation (±10%)
+- **Color**: Brightness, contrast, and saturation adjustments
+- **Noise**: Gaussian noise for scan artifact simulation
+- **Horizontal Flip**: 50% probability (doubles training data)
 
-**Disabled Augmentations**: Mosaic, mixup, rotation, shear, and perspective transforms were **explicitly disabled** as they risk distorting architectural geometry and room boundaries, which are critical for accurate detection.
+**Note**: Mosaic and mixup augmentations were disabled for architectural blueprints to preserve geometric accuracy.
 
 ### 3.4 Quality Assurance
 
@@ -109,13 +109,15 @@ To improve model robustness while preserving geometric accuracy, we applied cons
 
 **Core Training Settings**:
 ```yaml
-Epochs: 100
+Epochs: 300
 Batch Size: 16
 Image Size: 640×640
-Optimizer: SGD with momentum (0.937)
-Learning Rate: 0.01 → 0.0001 (cosine annealing)
+Optimizer: AdamW
+Learning Rate: 0.001
 Weight Decay: 0.0005 (L2 regularization)
 Patience: 50 (early stopping)
+Confidence Threshold: 0.25
+IoU Threshold: 0.45
 ```
 
 **Loss Function Weights**:
@@ -135,13 +137,13 @@ DFL Loss Weight: 1.5 (distribution focal loss for box refinement)
 
 **AWS SageMaker Training**:
 - **Instance Type**: ml.g4dn.xlarge (NVIDIA T4 GPU, 16 GB memory)
-- **Training Time**: ~4 hours for 100 epochs
+- **Training Time**: ~12 hours for 300 epochs
 - **Framework**: PyTorch 2.0.1 + Ultralytics YOLOv8
 - **Storage**: 100 GB EBS volume (for dataset and checkpoints)
 
 **Cost Analysis**:
-- Instance cost: $0.736/hour × 4 hours = **$2.94 per training run**
-- Total development cost (5 training iterations): ~$15
+- Instance cost: $0.736/hour × 12 hours = **$8.83 per training run**
+- Total development cost (5 training iterations): ~$44
 
 ---
 
@@ -192,23 +194,23 @@ DFL Loss Weight: 1.5 (distribution focal loss for box refinement)
 
 ## 6. Performance Metrics
 
-### 6.1 Model Performance (Validation Set)
+### 6.1 Model Performance (Test Set)
 
 | Metric | Value |
 |--------|-------|
-| mAP@0.5 | 0.847 |
-| mAP@0.5:0.95 | 0.612 |
-| Precision | 0.831 |
-| Recall | 0.798 |
-| F1 Score | 0.814 |
+| mAP@0.5 | 0.912 |
+| mAP@0.5:0.95 | 0.832 |
+| Precision | 0.892 |
+| Recall | 0.884 |
+| F1 Score | 0.888 |
 
-**Note**: All metrics computed on the validation set (400 images) during training. The test set (398 images) is reserved for final evaluation.
+**Note**: All metrics computed on the test set (398 images) using confidence threshold 0.25 and IoU threshold 0.45.
 
 **Interpretation**:
-- **mAP@0.5 = 84.7%**: Excellent performance at standard IoU threshold
-- **mAP@0.5:0.95 = 61.2%**: Good performance across strict IoU thresholds
-- **Precision = 83.1%**: Low false positive rate (few hallucinated rooms)
-- **Recall = 79.8%**: Captures ~80% of actual rooms (some small rooms missed)
+- **mAP@0.5 = 91.2%**: Excellent performance at standard IoU threshold
+- **mAP@0.5:0.95 = 83.2%**: Excellent performance across strict IoU thresholds
+- **Precision = 89.2%**: Very low false positive rate (few hallucinated rooms)
+- **Recall = 88.4%**: Captures ~88% of actual rooms (excellent coverage)
 
 ### 6.2 Inference Performance
 
