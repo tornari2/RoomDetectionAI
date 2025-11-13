@@ -118,7 +118,7 @@ async function processBatchWithConcurrency(
     
     // Process batch in parallel
     const batchPromises = batch.map(async (file) => {
-      const progressCallback = (message: string) => {
+      const progressCallback = (_message: string) => {
         // Progress callback during processing - show current file
         onProgress?.({
           completed: completedCount,

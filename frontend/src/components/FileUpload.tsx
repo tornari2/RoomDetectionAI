@@ -105,6 +105,43 @@ export default function FileUpload({ onFileSelect, onProcess, onBatchProcess, on
     }
   }
 
+  const handleFolderInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (files && files.length > 0) {
+      const fileArray = Array.from(files)
+      
+      // Filter to only image files (PNG, JPG, JPEG)
+      // Note: webkitdirectory doesn't support accept attribute, so we filter manually
+      const imageFiles = fileArray.filter(file => {
+        const lowerName = file.name.toLowerCase()
+        return lowerName.endsWith('.png') || 
+               lowerName.endsWith('.jpg') || 
+               lowerName.endsWith('.jpeg')
+      })
+      
+      if (imageFiles.length === 0) {
+        setError('No image files (PNG/JPG) found in the selected folder')
+        return
+      }
+      
+      // Validate all image files
+      const invalidFiles = imageFiles.filter(file => {
+        const validation = validateFile(file)
+        return !validation.isValid
+      })
+      
+      if (invalidFiles.length > 0) {
+        setError(`Invalid file(s): ${invalidFiles.map(f => f.name).join(', ')}`)
+        return
+      }
+      
+      setError(null)
+      if (onBatchProcess) {
+        onBatchProcess(imageFiles)
+      }
+    }
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.uploadSection}>
@@ -160,17 +197,29 @@ export default function FileUpload({ onFileSelect, onProcess, onBatchProcess, on
                   />
                 </label>
                 {onBatchProcess && (
-                  <label htmlFor="batch-file-input" className={styles.fileInputLabel}>
-                    <span className={styles.batchFileInputButton}>Process Folder</span>
-                    <input
-                      id="batch-file-input"
-                      type="file"
-                      accept="image/png,image/jpeg,image/jpg"
-                      multiple
-                      onChange={handleBatchFileInputChange}
-                      className={styles.fileInput}
-                    />
-                  </label>
+                  <>
+                    <label htmlFor="batch-file-input" className={styles.fileInputLabel}>
+                      <span className={styles.batchFileInputButton}>Select Multiple Files</span>
+                      <input
+                        id="batch-file-input"
+                        type="file"
+                        accept="image/png,image/jpeg,image/jpg"
+                        multiple
+                        onChange={handleBatchFileInputChange}
+                        className={styles.fileInput}
+                      />
+                    </label>
+                    <label htmlFor="folder-input" className={styles.fileInputLabel}>
+                      <span className={styles.batchFileInputButton}>Upload Folder</span>
+                      <input
+                        id="folder-input"
+                        type="file"
+                        {...({ webkitdirectory: '', directory: '' } as any)}
+                        onChange={handleFolderInputChange}
+                        className={styles.fileInput}
+                      />
+                    </label>
+                  </>
                 )}
               </div>
             </div>
