@@ -1,5 +1,0 @@
-{
-  "blueprint_id": "bp_test_001",
-  "s3_bucket": "room-detection-ai-blueprints-dev",
-  "s3_key": "test/images/1025_F1_original.png"
-}

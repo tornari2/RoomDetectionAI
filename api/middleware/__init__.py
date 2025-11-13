@@ -1,2 +1,0 @@
-# API middleware module
-

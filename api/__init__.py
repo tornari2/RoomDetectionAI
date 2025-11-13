@@ -1,2 +1,0 @@
-# API handlers package
-

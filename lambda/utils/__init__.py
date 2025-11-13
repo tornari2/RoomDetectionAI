@@ -1,2 +1,0 @@
-# Lambda utils package
-
