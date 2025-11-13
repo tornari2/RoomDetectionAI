@@ -7,11 +7,12 @@ import styles from './FileUpload.module.css'
 interface FileUploadProps {
   onFileSelect: (file: File) => void
   onProcess: (file: File) => void
+  onBatchProcess?: (files: File[]) => void
   onClear?: () => void
   isProcessing?: boolean
 }
 
-export default function FileUpload({ onFileSelect, onProcess, onClear, isProcessing = false }: FileUploadProps) {
+export default function FileUpload({ onFileSelect, onProcess, onBatchProcess, onClear, isProcessing = false }: FileUploadProps) {
   const [selectedFile, setSelectedFile] = useState<FileWithPreview | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
@@ -82,6 +83,28 @@ export default function FileUpload({ onFileSelect, onProcess, onClear, isProcess
     document.getElementById('file-input-new')?.click()
   }
 
+  const handleBatchFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (files && files.length > 0) {
+      const fileArray = Array.from(files)
+      // Validate all files
+      const invalidFiles = fileArray.filter(file => {
+        const validation = validateFile(file)
+        return !validation.isValid
+      })
+      
+      if (invalidFiles.length > 0) {
+        setError(`Invalid file(s): ${invalidFiles.map(f => f.name).join(', ')}`)
+        return
+      }
+      
+      setError(null)
+      if (onBatchProcess) {
+        onBatchProcess(fileArray)
+      }
+    }
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.uploadSection}>
@@ -125,16 +148,31 @@ export default function FileUpload({ onFileSelect, onProcess, onClear, isProcess
               </div>
             </div>
             <div className={styles.fileBrowserSection}>
-              <label htmlFor="file-input" className={styles.fileInputLabel}>
-                <span className={styles.fileInputButton}>Browse Files</span>
-                <input
-                  id="file-input"
-                  type="file"
-                  accept="image/png,image/jpeg,image/jpg"
-                  onChange={handleFileInputChange}
-                  className={styles.fileInput}
-                />
-              </label>
+              <div className={styles.buttonGroup}>
+                <label htmlFor="file-input" className={styles.fileInputLabel}>
+                  <span className={styles.fileInputButton}>Browse Files</span>
+                  <input
+                    id="file-input"
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg"
+                    onChange={handleFileInputChange}
+                    className={styles.fileInput}
+                  />
+                </label>
+                {onBatchProcess && (
+                  <label htmlFor="batch-file-input" className={styles.fileInputLabel}>
+                    <span className={styles.batchFileInputButton}>Process Folder</span>
+                    <input
+                      id="batch-file-input"
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg"
+                      multiple
+                      onChange={handleBatchFileInputChange}
+                      className={styles.fileInput}
+                    />
+                  </label>
+                )}
+              </div>
             </div>
           </>
         ) : (

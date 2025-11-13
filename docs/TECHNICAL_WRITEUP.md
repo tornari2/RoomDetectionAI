@@ -303,3 +303,11 @@ DFL Loss Weight: 1.5 (distribution focal loss for box refinement)
 **Last Updated**: November 10, 2024  
 **Author**: Room Detection AI Team
 
+
+
+
+
+
+
+
+

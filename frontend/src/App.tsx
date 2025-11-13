@@ -5,9 +5,11 @@ import LoadingIndicator from './components/LoadingIndicator'
 import StatusMessage from './components/StatusMessage'
 import BlueprintDisplay from './components/BlueprintDisplay'
 import ErrorDisplay from './components/ErrorDisplay'
+import BatchProcessor from './components/BatchProcessor'
 import type { StatusType } from './components/StatusMessage'
 import type { DetectedRoom } from './types/blueprint'
 import type { StatusResponseCompleted, StatusResponseFailed } from './types/api'
+import type { ProcessedImage } from './types/batch'
 import { uploadBlueprint, getBlueprintStatus, ApiClientError } from './services/apiClient'
 import { usePolling } from './hooks/usePolling'
 import './App.css'
@@ -21,6 +23,8 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [blueprintId, setBlueprintId] = useState<string | null>(null)
   const [lastFile, setLastFile] = useState<File | null>(null)
+  const [batchFiles, setBatchFiles] = useState<File[] | null>(null)
+  const [isBatchMode, setIsBatchMode] = useState(false)
 
   const handleRetry = useCallback(() => {
     if (lastFile) {
@@ -38,10 +42,15 @@ function App() {
     setBlueprintId(null)
     setIsProcessing(false)
     setLastFile(null)
+    setBatchFiles(null)
+    setIsBatchMode(false)
   }, [])
 
   const handleFileSelect = (file: File) => {
     console.log('File selected:', file.name)
+    // Clear batch mode when selecting single file
+    setIsBatchMode(false)
+    setBatchFiles(null)
     // Create preview URL for the selected file
     const url = URL.createObjectURL(file)
     setImageUrl(url)
@@ -51,6 +60,34 @@ function App() {
     setError(null)
     setBlueprintId(null)
   }
+
+  const handleBatchProcess = useCallback((files: File[]) => {
+    console.log('Batch processing started:', files.length, 'files')
+    // Clear single file mode
+    setImageUrl(null)
+    setDetectedRooms([])
+    setStatus('idle')
+    setStatusMessage('')
+    setError(null)
+    setBlueprintId(null)
+    setIsProcessing(false)
+    setLastFile(null)
+    // Set batch mode
+    setBatchFiles(files)
+    setIsBatchMode(true)
+  }, [])
+
+  const handleBatchComplete = useCallback((results: ProcessedImage[]) => {
+    console.log('Batch processing completed:', results.length, 'results')
+    setIsBatchMode(false)
+    // Optionally show summary or clear
+  }, [])
+
+  const handleBatchCancel = useCallback(() => {
+    console.log('Batch processing cancelled')
+    setIsBatchMode(false)
+    setBatchFiles(null)
+  }, [])
 
   const handleProcess = async (file: File) => {
     setLastFile(file)
@@ -142,22 +179,32 @@ function App() {
               <FileUpload
                 onFileSelect={handleFileSelect}
                 onProcess={handleProcess}
+                onBatchProcess={handleBatchProcess}
                 onClear={handleClear}
-                isProcessing={isProcessing}
+                isProcessing={isProcessing || isBatchMode}
               />
-              {error && status === 'error' && (
+              {isBatchMode && batchFiles && (
+                <BatchProcessor
+                  files={batchFiles}
+                  onComplete={handleBatchComplete}
+                  onCancel={handleBatchCancel}
+                />
+              )}
+              {!isBatchMode && error && status === 'error' && (
                 <ErrorDisplay
                   error={error}
                   onRetry={handleRetry}
                   title="Upload Failed"
                 />
               )}
-              <StatusMessage
-                status={status}
-                message={statusMessage}
-                error={error || undefined}
-              />
-              {imageUrl && (
+              {!isBatchMode && (
+                <StatusMessage
+                  status={status}
+                  message={statusMessage}
+                  error={error || undefined}
+                />
+              )}
+              {!isBatchMode && imageUrl && (
                 <BlueprintDisplay
                   imageUrl={imageUrl}
                   detectedRooms={detectedRooms}
@@ -165,7 +212,7 @@ function App() {
                   blueprintId={blueprintId || undefined}
                 />
               )}
-              {isProcessing && status !== 'completed' && (
+              {!isBatchMode && isProcessing && status !== 'completed' && (
                 <LoadingIndicator text="Processing your blueprint..." />
               )}
             </main>
